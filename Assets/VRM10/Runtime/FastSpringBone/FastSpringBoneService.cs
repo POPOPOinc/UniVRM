@@ -48,6 +48,10 @@ namespace UniVRM10.FastSpringBones
         {
             get
             {
+                // v0.127.1_hotfix_2
+                // EditorImport時にDontDestroyOnLoadが呼ばれるとエラーになるので、それを防ぐ暫定対処
+                if (!Application.isPlaying) return null;
+                
                 if (_instance) return _instance;
 
 #if UNITY_2022_3_OR_NEWER
