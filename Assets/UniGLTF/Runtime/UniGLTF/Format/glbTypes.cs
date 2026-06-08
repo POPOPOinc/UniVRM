@@ -31,7 +31,7 @@ namespace UniGLTF
         public GlbChunkType ChunkType => ChunkTypeString.ToChunkType();
 
         public string ChunkTypeString;
-        public ArraySegment<Byte> Bytes;
+        public ReadOnlyMemory<Byte> Bytes;
 
         public GlbChunk(string json) : this(
             GlbChunkType.JSON.ToChunkTypeString(),
@@ -87,11 +87,11 @@ namespace UniGLTF
         public int WriteTo(Stream s)
         {
             // padding
-            var paddingValue = Bytes.Count % 4;
+            var paddingValue = Bytes.Length % 4;
             var padding = (paddingValue > 0) ? 4 - paddingValue : 0;
 
             // size
-            var bytes = BitConverter.GetBytes((int)(Bytes.Count + padding));
+            var bytes = BitConverter.GetBytes((int)(Bytes.Length + padding));
             s.Write(bytes, 0, bytes.Length);
 
             // chunk type
@@ -116,7 +116,7 @@ namespace UniGLTF
             }
 
             // body
-            s.Write(Bytes.Array, Bytes.Offset, Bytes.Count);
+            s.Write(Bytes.Span);
 
             // 4byte align
             var pad = GetPaddingByte();
@@ -125,7 +125,7 @@ namespace UniGLTF
                 s.WriteByte(pad);
             }
 
-            return 4 + 4 + Bytes.Count + padding;
+            return 4 + 4 + Bytes.Length + padding;
         }
     }
 

@@ -86,7 +86,7 @@ namespace UniGLTF
             {
                 if (Chunks.Count >= 2)
                 {
-                    Bin = NativeArrayManager.CreateNativeArray(Chunks[1].Bytes);
+                    Bin = NativeArrayManager.CreateNativeArray(Chunks[1].Bytes.Span);
                 }
             }
         }

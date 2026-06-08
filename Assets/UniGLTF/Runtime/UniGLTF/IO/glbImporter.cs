@@ -45,7 +45,7 @@ namespace UniGLTF
             return ParseGlbChunks(bytes);
         }
 
-        public static List<GlbChunk> ParseGlbChunks(Byte[] bytes)
+        public static List<GlbChunk> ParseGlbChunks(ReadOnlySpan<Byte> bytes)
         {
             //
             // glb header(12byte)
@@ -56,47 +56,63 @@ namespace UniGLTF
             }
 
             int pos = 0;
-            if (Encoding.ASCII.GetString(bytes, 0, 4) != GLB_MAGIC)
+            if (Encoding.ASCII.GetString(bytes[..4]) != GLB_MAGIC)
             {
                 throw new GlbParseException("invalid magic");
             }
+
             pos += 4;
 
-            var version = BitConverter.ToUInt32(bytes, pos);
+            var version = BitConverter.ToUInt32(bytes[pos..]);
             if (version != GLB_VERSION)
             {
                 throw new GlbParseException($"unknown version: {version}");
             }
+
             pos += 4;
 
-            var totalLength = BitConverter.ToUInt32(bytes, pos);
+            var totalLength = BitConverter.ToUInt32(bytes[pos..]);
             if (bytes.Length < totalLength)
             {
                 throw new GlbParseException($"not enough size: {bytes.Length} < {totalLength}");
             }
+
             pos += 4;
 
             var chunks = new List<GlbChunk>();
             while (pos < bytes.Length)
             {
-                var chunkDataSize = BitConverter.ToInt32(bytes, pos);
+                var chunkDataSize = BitConverter.ToInt32(bytes[pos..]);
                 pos += 4;
 
                 //var type = (GlbChunkType)BitConverter.ToUInt32(bytes, pos);
-                var chunkTypeBytes = bytes.Skip(pos).Take(4).Where(x => x != 0).ToArray();
+                var chunkTypeBytes = GetChunkTypeBytes(bytes, pos);
                 var chunkTypeStr = Encoding.ASCII.GetString(chunkTypeBytes);
                 pos += 4;
 
                 chunks.Add(new GlbChunk
                 {
                     ChunkTypeString = chunkTypeStr,
-                    Bytes = new ArraySegment<byte>(bytes, (int)pos, (int)chunkDataSize)
+                    Bytes = bytes.Slice(pos, chunkDataSize).ToArray()
                 });
 
                 pos += chunkDataSize;
             }
 
             return chunks;
+        }
+
+        private static ReadOnlySpan<byte> GetChunkTypeBytes(ReadOnlySpan<byte> bytes, int offset)
+        {
+            var slice = bytes.Slice(offset, 4);
+            var result = new byte[4];
+            var count = 0;
+            foreach (var b in slice)
+            {
+                if (b != 0) result[count++] = b;
+            }
+
+            return new Span<byte>(result)[..count];
         }
     }
 }

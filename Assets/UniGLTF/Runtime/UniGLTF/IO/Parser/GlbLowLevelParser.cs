@@ -33,7 +33,7 @@ namespace UniGLTF
                 var jsonBytes = chunks[0].Bytes;
                 return ParseGltf(
                     _path,
-                    Encoding.UTF8.GetString(jsonBytes.Array, jsonBytes.Offset, jsonBytes.Count),
+                    Encoding.UTF8.GetString(jsonBytes.Span),
                     chunks,
                     default,
                     new MigrationFlags()
@@ -49,7 +49,7 @@ namespace UniGLTF
             }
         }
 
-        public static List<GlbChunk> ParseGlbChunks(byte[] data)
+        public static List<GlbChunk> ParseGlbChunks(ReadOnlySpan<byte> data)
         {
             var chunks = glbImporter.ParseGlbChunks(data);
 
