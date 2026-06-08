@@ -234,6 +234,7 @@ namespace UniGLTF
                 string.Empty,
                 string.Empty,
                 gltf,
+                default,
                 new List<GlbChunk>(),
                 default,
                 new MigrationFlags()
