@@ -29,11 +29,11 @@ namespace UniGLTF
         {
             try
             {
-                var chunks = ParseGlbChunks(_binary);
-                var jsonBytes = chunks[0].Bytes;
+                var chunks = ParseGlbChunks(_binary, out var jsonChunk, out var binChunk);
                 return ParseGltf(
                     _path,
-                    Encoding.UTF8.GetString(jsonBytes.Span),
+                    Encoding.UTF8.GetString(jsonChunk.Bytes),
+                    binChunk,
                     chunks,
                     default,
                     new MigrationFlags()
@@ -49,21 +49,16 @@ namespace UniGLTF
             }
         }
 
-        public static List<GlbChunk> ParseGlbChunks(ReadOnlySpan<byte> data)
+        public static List<GlbChunk> ParseGlbChunks(ReadOnlySpan<byte> data, out GlbChunkRef jsonChunk, out GlbChunkRef binChunk)
         {
-            var chunks = glbImporter.ParseGlbChunks(data);
+            var chunks = glbImporter.ParseGlbChunks(data, out jsonChunk, out binChunk);
 
-            if (chunks.Count < 2)
-            {
-                throw new Exception("unknown chunk count: " + chunks.Count);
-            }
-
-            if (chunks[0].ChunkType != GlbChunkType.JSON)
+            if (jsonChunk.ChunkType != GlbChunkType.JSON)
             {
                 throw new Exception("chunk 0 is not JSON");
             }
 
-            if (chunks[1].ChunkType != GlbChunkType.BIN)
+            if (binChunk.ChunkType != GlbChunkType.BIN)
             {
                 throw new Exception("chunk 1 is not BIN");
             }
@@ -71,7 +66,7 @@ namespace UniGLTF
             return chunks;
         }
 
-        public static GltfData ParseGltf(string path, string json, IReadOnlyList<GlbChunk> chunks, IStorage storage, MigrationFlags migrationFlags)
+        public static GltfData ParseGltf(string path, string json, GlbChunkRef binChunk, IReadOnlyList<GlbChunk> chunks, IStorage storage, MigrationFlags migrationFlags)
         {
             var GLTF = GltfDeserializer.Deserialize(json.ParseAsJson());
             if (GLTF.asset.version != "2.0")
@@ -93,7 +88,7 @@ namespace UniGLTF
             FixNodeName(GLTF);
             FixAnimationNameUnique(GLTF);
 
-            return new GltfData(path, json, GLTF, chunks, storage, migrationFlags);
+            return new GltfData(path, json, GLTF, binChunk, chunks, storage, migrationFlags);
         }
 
         private static void FixMeshNameUnique(glTF GLTF)

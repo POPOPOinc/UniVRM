@@ -42,10 +42,10 @@ namespace UniGLTF
         [Obsolete("Use ParseGlbChunks(bytes)")]
         public static List<GlbChunk> ParseGlbChanks(Byte[] bytes)
         {
-            return ParseGlbChunks(bytes);
+            return ParseGlbChunks(bytes, out _, out _);
         }
 
-        public static List<GlbChunk> ParseGlbChunks(ReadOnlySpan<Byte> bytes)
+        public static List<GlbChunk> ParseGlbChunks(ReadOnlySpan<Byte> bytes, out GlbChunkRef jsonChunk, out GlbChunkRef binChunk)
         {
             //
             // glb header(12byte)
@@ -78,6 +78,32 @@ namespace UniGLTF
             }
 
             pos += 4;
+
+            {
+                var chunkDataSize = BitConverter.ToInt32(bytes[pos..]);
+                pos += 4;
+
+                var chunkTypeBytes = GetChunkTypeBytes(bytes, pos);
+                var chunkTypeStr = Encoding.ASCII.GetString(chunkTypeBytes);
+                pos += 4;
+
+                jsonChunk = new GlbChunkRef(chunkTypeStr, bytes.Slice(pos, chunkDataSize));
+
+                pos += chunkDataSize;
+            }
+
+            {
+                var chunkDataSize = BitConverter.ToInt32(bytes[pos..]);
+                pos += 4;
+
+                var chunkTypeBytes = GetChunkTypeBytes(bytes, pos);
+                var chunkTypeStr = Encoding.ASCII.GetString(chunkTypeBytes);
+                pos += 4;
+
+                binChunk = new GlbChunkRef(chunkTypeStr, bytes.Slice(pos, chunkDataSize));
+
+                pos += chunkDataSize;
+            }
 
             var chunks = new List<GlbChunk>();
             while (pos < bytes.Length)

@@ -38,6 +38,7 @@ namespace UniGLTF
             return GlbLowLevelParser.ParseGltf(
                 _zippedFilePath,
                 json,
+                default,
                 new List<GlbChunk>(),
                 zipArchive,
                 new MigrationFlags()

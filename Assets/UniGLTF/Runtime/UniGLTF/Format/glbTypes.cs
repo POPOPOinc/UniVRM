@@ -129,6 +129,20 @@ namespace UniGLTF
         }
     }
 
+    public readonly ref struct GlbChunkRef
+    {
+        public GlbChunkType ChunkType => ChunkTypeString.ToChunkType();
+
+        public readonly string ChunkTypeString;
+        public readonly ReadOnlySpan<Byte> Bytes;
+        
+        public GlbChunkRef(string chunkTypeString, ReadOnlySpan<Byte> bytes)
+        {
+            ChunkTypeString = chunkTypeString;
+            Bytes = bytes;
+        }
+    }
+
     /// <summary>
     /// https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#glb-file-format-specification
     /// </summary>

@@ -32,6 +32,7 @@ namespace UniGLTF
             return GlbLowLevelParser.ParseGltf(
                 _gltfFilePath,
                 Encoding.UTF8.GetString(_bytes),
+                default,
                 new List<GlbChunk>(), // .gltf file has no chunks.
                 new FileSystemStorage(_gltfRootPath), // .gltf file has resource path at file system.
                 new MigrationFlags()

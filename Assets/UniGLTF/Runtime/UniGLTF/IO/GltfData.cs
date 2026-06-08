@@ -72,7 +72,7 @@ namespace UniGLTF
         /// <returns></returns>
         Dictionary<string, NativeArray<byte>> _UriCache = new Dictionary<string, NativeArray<byte>>();
 
-        public GltfData(string targetPath, string json, glTF gltf, IReadOnlyList<GlbChunk> chunks, IStorage storage, MigrationFlags migrationFlags)
+        public GltfData(string targetPath, string json, glTF gltf, GlbChunkRef binChunk, IReadOnlyList<GlbChunk> chunks, IStorage storage, MigrationFlags migrationFlags)
         {
             TargetPath = targetPath;
             Json = json;
@@ -82,12 +82,9 @@ namespace UniGLTF
             MigrationFlags = migrationFlags;
 
             // init
-            if (Chunks != null)
+            if (!binChunk.Bytes.IsEmpty)
             {
-                if (Chunks.Count >= 2)
-                {
-                    Bin = NativeArrayManager.CreateNativeArray(Chunks[1].Bytes.Span);
-                }
+                Bin = NativeArrayManager.CreateNativeArray(binChunk.Bytes);
             }
         }
 
@@ -108,11 +105,8 @@ namespace UniGLTF
                 string.Empty,
                 string.Empty,
                 gltf,
-                new List<GlbChunk>
-                {
-                    new GlbChunk(), // json
-                    GlbChunk.CreateBin(bytes),
-                },
+                new GlbChunkRef(GlbChunkType.BIN.ToChunkTypeString(), bytes.AsSpan()),
+                new List<GlbChunk>(),
                 default,
                 new MigrationFlags()
             );

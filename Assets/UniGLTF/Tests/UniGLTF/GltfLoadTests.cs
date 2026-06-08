@@ -311,7 +311,7 @@ namespace UniGLTF
 }
             ";
 
-            var gltf = GlbLowLevelParser.ParseGltf("tmp", json, null, null, default);
+            var gltf = GlbLowLevelParser.ParseGltf("tmp", json, default,null, null, default);
             Assert.AreEqual(1, gltf.GLTF.nodes.Count);
             Assert.AreEqual("0", gltf.GLTF.nodes[0].name);
         }
@@ -322,7 +322,7 @@ namespace UniGLTF
         {
             var asset = UnityEditor.AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/UniGLTF/Tests/UniGLTF/gltfTutorial_017_SimpleMorphTarget.txt");
             Assert.True(asset);
-            var gltf = GlbLowLevelParser.ParseGltf("tmp", asset.text, null, null, default);
+            var gltf = GlbLowLevelParser.ParseGltf("tmp", asset.text, default,null, null, default);
             Assert.AreEqual(1, gltf.GLTF.nodes.Count);
             Assert.AreEqual("0", gltf.GLTF.nodes[0].name);
             Assert.True(gltf_mesh_extras_targetNames.TryGet(gltf.GLTF.meshes[0], out List<string> targetNames));

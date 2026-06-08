@@ -222,6 +222,7 @@ namespace UniVRM10
             using GltfData data = GlbLowLevelParser.ParseGltf(
                 "tmp.vrma",
                 text,
+                default,
                 new List<GlbChunk>(), // .gltf file has no chunks.
                 new FileSystemStorage("_dummy_root_"), // .gltf file has resource path at file system.
                 new MigrationFlags()
