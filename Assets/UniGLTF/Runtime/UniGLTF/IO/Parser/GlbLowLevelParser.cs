@@ -27,11 +27,16 @@ namespace UniGLTF
 
         public GltfData Parse()
         {
+            return Parse(_path, _binary);
+        }
+
+        public static GltfData Parse(string path, ReadOnlySpan<byte> binary)
+        {
             try
             {
-                var chunks = ParseGlbChunks(_binary, out var jsonChunk, out var binChunk);
+                var chunks = ParseGlbChunks(binary, out var jsonChunk, out var binChunk);
                 return ParseGltf(
-                    _path,
+                    path,
                     Encoding.UTF8.GetString(jsonChunk.Bytes),
                     binChunk,
                     chunks,
@@ -42,10 +47,6 @@ namespace UniGLTF
             catch (StackOverflowException ex)
             {
                 throw new Exception("[UniVRM Import Error] json parsing failed, nesting is too deep.\n" + ex);
-            }
-            catch
-            {
-                throw;
             }
         }
 
