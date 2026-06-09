@@ -98,7 +98,7 @@ namespace UniGLTF
                 var chunkDataSize = BitConverter.ToInt32(bytes[pos..]);
                 pos += 4;
 
-                var chunkTypeBytes = bytes[pos..4];
+                var chunkTypeBytes = bytes.Slice(pos, 4);
                 pos += 4;
 
                 jsonChunk = new GlbChunkRef(chunkTypeBytes, bytes.Slice(pos, chunkDataSize));
@@ -110,7 +110,7 @@ namespace UniGLTF
                 var chunkDataSize = BitConverter.ToInt32(bytes[pos..]);
                 pos += 4;
 
-                var chunkTypeBytes = bytes[pos..4];
+                var chunkTypeBytes = bytes.Slice(pos, 4);
                 pos += 4;
 
                 binChunk = new GlbChunkRef(chunkTypeBytes, bytes.Slice(pos, chunkDataSize));
