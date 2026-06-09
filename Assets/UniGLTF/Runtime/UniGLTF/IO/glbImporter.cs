@@ -9,7 +9,8 @@ namespace UniGLTF
     {
         public const string GLB_MAGIC = "glTF";
         public const uint GLB_VERSION = 2;
-        
+
+        public static readonly byte[] GLB_MAGIC_GLTF = Encoding.ASCII.GetBytes(GLB_MAGIC);
         public static readonly byte[] GLB_MAGIC_JSON = BitConverter.GetBytes((uint)GlbChunkType.JSON);
         public static readonly byte[] GLB_MAGIC_BIN = BitConverter.GetBytes((uint)GlbChunkType.BIN);
 
@@ -71,7 +72,7 @@ namespace UniGLTF
             }
 
             int pos = 0;
-            if (Encoding.ASCII.GetString(bytes[..4]) != GLB_MAGIC)
+            if (!bytes[..4].SequenceEqual(GLB_MAGIC_GLTF))
             {
                 throw new GlbParseException("invalid magic");
             }
