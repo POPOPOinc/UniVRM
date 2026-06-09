@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 
@@ -9,7 +8,10 @@ namespace UniGLTF
     public static class glbImporter
     {
         public const string GLB_MAGIC = "glTF";
-        public const float GLB_VERSION = 2.0f;
+        public const uint GLB_VERSION = 2;
+        
+        public static readonly byte[] GLB_MAGIC_JSON = BitConverter.GetBytes((uint)GlbChunkType.JSON);
+        public static readonly byte[] GLB_MAGIC_BIN = BitConverter.GetBytes((uint)GlbChunkType.BIN);
 
         public static GlbChunkType ToChunkType(this string src)
         {
@@ -37,6 +39,19 @@ namespace UniGLTF
                 default:
                     throw new ArgumentOutOfRangeException(nameof(type), type, null);
             }
+        }
+
+        public static GlbChunkType ToChunkType(this ReadOnlySpan<byte> src)
+        {
+            if (src.SequenceEqual(GLB_MAGIC_JSON))
+            {
+                return GlbChunkType.JSON;
+            }
+            if (src.SequenceEqual(GLB_MAGIC_BIN))
+            {
+                return GlbChunkType.BIN;
+            }
+            throw new FormatException("unknown chunk type");
         }
 
         [Obsolete("Use ParseGlbChunks(bytes)")]
@@ -83,11 +98,10 @@ namespace UniGLTF
                 var chunkDataSize = BitConverter.ToInt32(bytes[pos..]);
                 pos += 4;
 
-                var chunkTypeBytes = GetChunkTypeBytes(bytes, pos);
-                var chunkTypeStr = Encoding.ASCII.GetString(chunkTypeBytes);
+                var chunkTypeBytes = bytes[pos..4];
                 pos += 4;
 
-                jsonChunk = new GlbChunkRef(chunkTypeStr, bytes.Slice(pos, chunkDataSize));
+                jsonChunk = new GlbChunkRef(chunkTypeBytes, bytes.Slice(pos, chunkDataSize));
 
                 pos += chunkDataSize;
             }
@@ -96,11 +110,10 @@ namespace UniGLTF
                 var chunkDataSize = BitConverter.ToInt32(bytes[pos..]);
                 pos += 4;
 
-                var chunkTypeBytes = GetChunkTypeBytes(bytes, pos);
-                var chunkTypeStr = Encoding.ASCII.GetString(chunkTypeBytes);
+                var chunkTypeBytes = bytes[pos..4];
                 pos += 4;
 
-                binChunk = new GlbChunkRef(chunkTypeStr, bytes.Slice(pos, chunkDataSize));
+                binChunk = new GlbChunkRef(chunkTypeBytes, bytes.Slice(pos, chunkDataSize));
 
                 pos += chunkDataSize;
             }

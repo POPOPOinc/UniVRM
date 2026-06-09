@@ -105,7 +105,7 @@ namespace UniGLTF
                 string.Empty,
                 string.Empty,
                 gltf,
-                new GlbChunkRef(GlbChunkType.BIN.ToChunkTypeString(), bytes.AsSpan()),
+                new GlbChunkRef(glbImporter.GLB_MAGIC_BIN, bytes.AsSpan()),
                 new List<GlbChunk>(),
                 default,
                 new MigrationFlags()

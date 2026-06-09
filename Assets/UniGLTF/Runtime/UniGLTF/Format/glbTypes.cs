@@ -131,14 +131,12 @@ namespace UniGLTF
 
     public readonly ref struct GlbChunkRef
     {
-        public GlbChunkType ChunkType => ChunkTypeString.ToChunkType();
-
-        public readonly string ChunkTypeString;
+        public readonly GlbChunkType ChunkType;
         public readonly ReadOnlySpan<Byte> Bytes;
-        
-        public GlbChunkRef(string chunkTypeString, ReadOnlySpan<Byte> bytes)
+
+        public GlbChunkRef(ReadOnlySpan<Byte> chunkType, ReadOnlySpan<Byte> bytes)
         {
-            ChunkTypeString = chunkTypeString;
+            ChunkType = chunkType.ToChunkType();
             Bytes = bytes;
         }
     }
