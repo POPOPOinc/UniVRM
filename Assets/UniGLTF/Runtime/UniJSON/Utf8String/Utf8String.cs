@@ -59,17 +59,17 @@ namespace UniJSON
 
         public Utf8String(ArraySegment<Byte> bytes)
         {
-            Bytes = new ReadOnlyMemory<Byte>(bytes.Array, bytes.Offset, bytes.Count);
+            Bytes = bytes;
         }
 
         public Utf8String(Byte[] bytes, int offset, int count)
         {
-            Bytes = new ReadOnlyMemory<Byte>(bytes, offset, count);
+            Bytes = bytes.AsMemory(offset,count);
         }
 
         public Utf8String(Byte[] bytes)
         {
-            Bytes = new ReadOnlyMemory<Byte>(bytes);
+            Bytes = bytes;
         }
 
         public static Utf8String From(string src)
