@@ -42,11 +42,11 @@ namespace UniGLTF
     /// </summary>
     public class glTFExtensionExport : glTFExtension
     {
-        readonly Dictionary<string, ArraySegment<byte>> m_serialized;
+        readonly Dictionary<string, ReadOnlyMemory<byte>> m_serialized;
 
         public glTFExtensionExport()
         {
-            m_serialized = new Dictionary<string, ArraySegment<byte>>();
+            m_serialized = new Dictionary<string, ReadOnlyMemory<byte>>();
         }
 
         public override string ToString()
@@ -63,6 +63,12 @@ namespace UniGLTF
             return this;
         }
 
+        public glTFExtensionExport Add(string key, ReadOnlyMemory<byte> raw)
+        {
+            m_serialized[key] = raw;
+            return this;
+        }
+
         public override void Serialize(JsonFormatter f)
         {
             f.BeginMap();
@@ -71,7 +77,7 @@ namespace UniGLTF
                 foreach (var kv in m_serialized)
                 {
                     f.Key(kv.Key);
-                    f.Raw(kv.Value);
+                    f.Raw(kv.Value.Span);
                 }
             }
             f.EndMap();
