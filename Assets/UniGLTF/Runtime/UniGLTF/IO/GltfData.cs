@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text;
 using Unity.Collections;
 
 namespace UniGLTF
@@ -32,7 +33,7 @@ namespace UniGLTF
         /// JSON chunk ToString
         /// > This chunk MUST be the very first chunk of Binary glTF asset
         /// </summary>
-        public string Json { get; }
+        public string Json => _json ?? Encoding.UTF8.GetString(_jsonBytes.Span);
 
         /// <summary>
         /// GLTF parsed from JSON chunk
@@ -72,10 +73,13 @@ namespace UniGLTF
         /// <returns></returns>
         Dictionary<string, NativeArray<byte>> _UriCache = new Dictionary<string, NativeArray<byte>>();
 
-        public GltfData(string targetPath, string json, glTF gltf, IReadOnlyList<GlbChunk> chunks, IStorage storage, MigrationFlags migrationFlags)
+        private string _json;
+        readonly ReadOnlyMemory<byte> _jsonBytes;
+
+        public GltfData(string targetPath, ReadOnlyMemory<byte> jsonBytes, glTF gltf, IReadOnlyList<GlbChunk> chunks, IStorage storage, MigrationFlags migrationFlags)
         {
             TargetPath = targetPath;
-            Json = json;
+            _jsonBytes = jsonBytes;
             GLTF = gltf;
             Chunks = chunks;
             _storage = storage;
@@ -106,7 +110,7 @@ namespace UniGLTF
         {
             return new GltfData(
                 string.Empty,
-                string.Empty,
+                Array.Empty<byte>(),
                 gltf,
                 new List<GlbChunk>
                 {

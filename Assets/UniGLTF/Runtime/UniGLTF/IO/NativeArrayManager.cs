@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using Unity.Collections;
 using System.Runtime.InteropServices;
+using Unity.Collections.LowLevel.Unsafe;
 
 namespace UniGLTF
 {
@@ -85,6 +86,21 @@ namespace UniGLTF
             var array = CreateNativeArray<T>(data.Length);
             array.CopyFrom(data);
             return array;
+        }
+
+        public NativeArray<T> CreateNativeArray<T>(ReadOnlyMemory<T> data) where T : struct
+        {
+            unsafe
+            {
+                var handle = data.Pin();
+                var nativeArray = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<T>(handle.Pointer, data.Length, Allocator.None);
+                m_disposables.Add(nativeArray);
+                m_disposables.Add(handle);
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
+                NativeArrayUnsafeUtility.SetAtomicSafetyHandle(ref nativeArray, AtomicSafetyHandle.Create());
+#endif
+              return nativeArray;
+            }
         }
 
         /// <summary>
